@@ -18,10 +18,13 @@ import com.techyourchance.coroutines.demonstrations.uncaughtexception.LoginUseCa
 import com.techyourchance.coroutines.home.ScreenReachableFromHome
 import kotlinx.coroutines.*
 import java.lang.Exception
+import java.lang.RuntimeException
 
 class Exercise10Fragment : BaseFragment() {
 
-    private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate)
+    private val scopeJob = SupervisorJob()
+
+    private val coroutineScope = CoroutineScope(scopeJob + Dispatchers.Main.immediate )
 
     override val screenTitle get() = ScreenReachableFromHome.EXERCISE_10.description
 
@@ -67,20 +70,46 @@ class Exercise10Fragment : BaseFragment() {
             override fun afterTextChanged(s: Editable?) {}
         })
 
-        btnLogin.setOnClickListener {
-                coroutineScope.launch {
-                    try {
-                        btnLogin.isEnabled = false
-                        val result = loginUseCase.logIn(getUsername(), getPassword())
-                        when (result) {
-                            is Result.Success -> onUserLoggedIn(result.user)
-                            is Result.InvalidCredentials -> onInvalidCredentials()
-                            is Result.GeneralError -> onGeneralError()
-                        }
-                    } finally {
-                        refreshUiState()
+        //TODO FORMA 1
+        /*btnLogin.setOnClickListener {
+            val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
+                Toast.makeText(requireContext(), "$throwable", Toast.LENGTH_SHORT).show()
+            }
+            coroutineScope.launch(coroutineExceptionHandler) {
+                try {
+                    btnLogin.isEnabled = false
+                    val result = loginUseCase.logIn(getUsername(), getPassword())
+                    when (result) {
+                        is Result.Success -> onUserLoggedIn(result.user)
+                        is Result.InvalidCredentials -> onInvalidCredentials()
+                        is Result.GeneralError -> onGeneralError()
                     }
+                } finally {
+                    refreshUiState()
                 }
+            }
+
+        }*/
+
+        // TODO FORMA 2
+        btnLogin.setOnClickListener {
+            coroutineScope.launch() {
+                try {
+                    btnLogin.isEnabled = false
+                    val result = loginUseCase.logIn(getUsername(), getPassword())
+                    when (result) {
+                        is Result.Success -> onUserLoggedIn(result.user)
+                        is Result.InvalidCredentials -> onInvalidCredentials()
+                        is Result.GeneralError -> onGeneralError()
+                    }
+                }catch (e:RuntimeException){
+                    Toast.makeText(requireContext(), "$e", Toast.LENGTH_SHORT).show()
+                }
+                finally {
+                    refreshUiState()
+                }
+            }
+
         }
 
         return view
