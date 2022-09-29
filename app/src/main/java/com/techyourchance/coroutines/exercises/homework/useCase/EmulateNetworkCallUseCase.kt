@@ -7,7 +7,8 @@ import kotlinx.coroutines.withContext
 
 class EmulateNetworkCallUseCase {
 
-    suspend fun emulateNetworkCall() : List<String> = withContext(CoroutineName("call use case network service") + Dispatchers.IO) {
+    suspend fun emulateNetworkCall() : List<String> =
+        withContext(CoroutineName("call use case network service") + Dispatchers.IO) {
         delay(4000)
         return@withContext listOf("one", "two", "three", "four","one", "two", "three", "four")
     }
