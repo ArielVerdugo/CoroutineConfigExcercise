@@ -20,6 +20,7 @@ class CoroutineConfigExcerciseFragment : BaseFragment() {
     private lateinit var emulateNetworkCallUseCase: EmulateNetworkCallUseCase
     private lateinit var recyclerExerciese: RecyclerView
     private lateinit var progressBar: ProgressBar
+    private var resultList: ArrayList<String> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +41,7 @@ class CoroutineConfigExcerciseFragment : BaseFragment() {
 
         with(recyclerExerciese){
             layoutManager = LinearLayoutManager(context)
+            adapter = ExerciseAdapter(resultList)
         }
         initValues()
 
@@ -50,7 +52,8 @@ class CoroutineConfigExcerciseFragment : BaseFragment() {
         coroutineScope.launch{
             withContext(CoroutineName("init coroutine")){
                 progressBar.visibility = View.VISIBLE
-                recyclerExerciese.adapter = ExerciseAdapter(getValues())
+                resultList.addAll(getValues())
+                recyclerExerciese.adapter?.notifyDataSetChanged()
                 progressBar.visibility = View.INVISIBLE
             }
         }
