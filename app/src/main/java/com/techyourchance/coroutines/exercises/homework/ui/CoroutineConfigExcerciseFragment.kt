@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.techyourchance.coroutines.R
@@ -18,7 +19,7 @@ class CoroutineConfigExcerciseFragment : BaseFragment() {
     private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate)
 
     private lateinit var emulateNetworkCallUseCase: EmulateNetworkCallUseCase
-    private lateinit var recyclerExerciese: RecyclerView
+    private lateinit var recyclerExercise: RecyclerView
     private lateinit var progressBar: ProgressBar
     private var resultList: ArrayList<String> = ArrayList()
 
@@ -27,19 +28,15 @@ class CoroutineConfigExcerciseFragment : BaseFragment() {
         emulateNetworkCallUseCase = compositionRoot.emulateNetworkCallUseCase
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
 
         val view = inflater.inflate(R.layout.fragment_coroutine_exercise, container, false)
         view.apply {
-            recyclerExerciese = findViewById(R.id.exercise_recycler_view)
+            recyclerExercise = findViewById(R.id.exercise_recycler_view)
             progressBar = findViewById(R.id.progress_bar)
         }
 
-        with(recyclerExerciese){
+        with(recyclerExercise){
             layoutManager = LinearLayoutManager(context)
             adapter = ExerciseAdapter(resultList)
         }
@@ -49,17 +46,15 @@ class CoroutineConfigExcerciseFragment : BaseFragment() {
     }
 
     private fun initValues(){
-        coroutineScope.launch{
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main.immediate) {
             withContext(CoroutineName("init coroutine")){
-                progressBar.visibility = View.VISIBLE
-                resultList.addAll(getValues())
-                recyclerExerciese.adapter?.notifyDataSetChanged()
+                resultList.addAll(emulateNetworkCallUseCase.emulateNetworkCall())
+                recyclerExercise.adapter?.notifyDataSetChanged()
                 progressBar.visibility = View.INVISIBLE
             }
         }
     }
 
-    private suspend fun getValues(): List<String> = emulateNetworkCallUseCase.emulateNetworkCall()
 
     companion object {
         fun newInstance(): Fragment {
