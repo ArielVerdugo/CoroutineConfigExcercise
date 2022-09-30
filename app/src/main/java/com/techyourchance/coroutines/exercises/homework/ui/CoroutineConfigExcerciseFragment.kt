@@ -16,8 +16,6 @@ import kotlinx.coroutines.*
 
 class CoroutineConfigExcerciseFragment : BaseFragment() {
 
-    private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate)
-
     private lateinit var emulateNetworkCallUseCase: EmulateNetworkCallUseCase
     private lateinit var recyclerExercise: RecyclerView
     private lateinit var progressBar: ProgressBar
